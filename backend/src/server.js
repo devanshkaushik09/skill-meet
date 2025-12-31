@@ -1,2 +1,29 @@
 import express from 'express';
 import { ENV } from './lib/env.js';
+import path from 'path';
+
+const app = express();
+const PORT = ENV.PORT;
+
+// for making backend and frontend on the same URL
+const __dirname = path.resolve();
+
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ msg: 'Server is healthy'});
+});
+app.get('/books', (req, res) => {
+  res.status(200).json({ msg: 'Books endpoint' });
+});
+
+// makee our app ready for ddeployment 
+if (ENV.NODE_ENV === 'production') {   
+    app.use(express.static(path.join(__dirname, "../frontend/dist")));    
+    app.get('/{*any}', (req, res) => {
+        res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    });
+}   
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
